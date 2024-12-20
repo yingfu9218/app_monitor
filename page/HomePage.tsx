@@ -5,7 +5,7 @@ import React, {useEffect} from 'react';
 import {
   useNavigation,
 } from '@react-navigation/native';
-import {addServer, getAppConfig, resetServerList, ServerConfig} from '../util/appConfig.tsx';
+import {addServer, delServerConfig, getAppConfig, resetServerList, ServerConfig} from '../util/appConfig.tsx';
 
 
 
@@ -20,6 +20,7 @@ function HomePage(){
   const [serverIsHttps,setserverIsHttps]=React.useState(false);
   const [serverSecretKey,setServerSecretKey]=React.useState('');
   const [serverList,setServerList]=React.useState([]);
+  const [firstLoad,setFirstLoad]=React.useState(true);
   // const [cardEle,setCardEle]=React.useState(null);
 
   // fab点击事件
@@ -27,10 +28,18 @@ function HomePage(){
     console.log("fab click");
     setVisible(true);
   }
+
+  /**
+   * 点击卡片
+   */
   function cardClickHandle(){
     console.log("card click");
     navigation.navigate('DetailPage');
   }
+
+  /**
+   * 保存新增配置
+   */
   function saveHandle(){
     const serverConfig: ServerConfig={
       serverName: serverName,
@@ -46,6 +55,10 @@ function HomePage(){
     });
 
   }
+
+  /**
+   * 刷新配置
+   */
   function updateServerListCard(){
      getAppConfig().then((list)=>{
        console.log("获取app配置");
@@ -53,20 +66,34 @@ function HomePage(){
       setServerList(list);
      });
   }
+
+  /**
+   * 重置配置
+   */
   function restSetHandle(){
     resetServerList();
     updateServerListCard();
   }
-  useEffect(()=>{
-    updateServerListCard();
-  });
 
-  const data = [
-    { id: 1, name: 'React' },
-    { id: 2, name: 'Native' },
-    { id: 3, name: 'Array' },
-    { id: 4, name: 'Mapping' },
-  ];
+  /**
+   * 删除配置
+   * @param v
+   * @param i
+   */
+  function  delCardHandle(i){
+    console.log(i);
+    delServerConfig(i).then(()=>{
+      updateServerListCard();
+    });
+  }
+  useEffect(()=>{
+    if (firstLoad){
+      updateServerListCard();
+      setFirstLoad(true);
+    };
+
+  }, [firstLoad]);
+
 
 
   return (
@@ -81,7 +108,7 @@ function HomePage(){
              title={v.serverName}
              subtitle={v.serverAddr}
              left={(props) => <Avatar.Icon {...props} icon="server" />}
-             right={(props) => <IconButton {...props} icon="dots-vertical" onPress={() => {}} />}
+             right={(props) => <IconButton {...props} icon="delete" onPress={() => {delCardHandle(i)}} />}
            />
          </Card>
        ))

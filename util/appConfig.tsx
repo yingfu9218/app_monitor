@@ -14,17 +14,16 @@ export interface ServerConfig {
  * 保存app配置
  * @param serverList
  */
-export const saveAppConfig=async (serverList)=> {
-   const result= await LocalStorageSave(serverListKey, serverList);
-   return result;
+export const saveAppConfig = async (serverList)=> {
+  return await LocalStorageSave(serverListKey, serverList);
 }
 
 /**
  * 读取app配置
  */
 export const getAppConfig = async () => {
-  const res = await LocalStorageGet(serverListKey);
-  return res;
+  return await LocalStorageGet(serverListKey);
+
 };
 
 /**
@@ -54,11 +53,10 @@ export function resetServerList(){
  * 删除单个服务器配置
  * @param index
  */
-export function delServerConfig(index:number){
-  getAppConfig().then((serverList)=>{
-    serverList.splice(index - 1, 1);
-    saveAppConfig(serverList);
-  });
+export const  delServerConfig= async (index:number) =>{
+  const serverList= await getAppConfig();
+  serverList.splice(index - 1, 1);
+  return  await saveAppConfig(serverList);
 }
 
 /**
