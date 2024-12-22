@@ -22,7 +22,12 @@ function HomePage(){
   const [serverList,setServerList]=React.useState([]);
   const [firstLoad,setFirstLoad]=React.useState(true);
   // const [cardEle,setCardEle]=React.useState(null);
-
+  React.useEffect(()=>{
+    if(firstLoad==true){
+      updateServerListCard();
+      setFirstLoad(false);
+    }
+  });
   // fab点击事件
   function fabhandle(){
     console.log("fab click");
@@ -32,9 +37,9 @@ function HomePage(){
   /**
    * 点击卡片
    */
-  function cardClickHandle(){
+  function cardClickHandle(v){
     console.log("card click");
-    navigation.navigate('DetailPage');
+    navigation.navigate('DetailPage',{ serverConfig: v });
   }
 
   /**
@@ -63,7 +68,12 @@ function HomePage(){
      getAppConfig().then((list)=>{
        console.log("获取app配置");
        console.log(list);
-      setServerList(list);
+      if (list==null){
+        setServerList([]);
+      }else {
+        setServerList(list);
+      }
+
      });
   }
 
@@ -86,24 +96,18 @@ function HomePage(){
       updateServerListCard();
     });
   }
-  useEffect(()=>{
-    if (firstLoad){
-      updateServerListCard();
-      setFirstLoad(true);
-    };
 
-  }, [firstLoad]);
 
 
 
   return (
    <>
    <View>
-     {/*<Button onPress={updateServerListCard}>查看配置</Button>*/}
+     <Button onPress={updateServerListCard}>查看配置</Button>
      <Button onPress={restSetHandle}>清空配置</Button>
      {
-       serverList.map((v,i)=>(
-         <Card key={i} onPress={cardClickHandle}>
+       serverList.length>0 && serverList.map((v,i)=>(
+         <Card key={i} onPress={()=>cardClickHandle(v)}>
            <Card.Title
              title={v.serverName}
              subtitle={v.serverAddr}
