@@ -32,6 +32,7 @@ export const getAppConfig = async () => {
  */
 export const addServer=async (serverConfig: ServerConfig)=> {
   let serverList= await getAppConfig();
+
   if (!serverList){
     serverList = [serverConfig];
   }else {
@@ -55,7 +56,7 @@ export function resetServerList(){
  */
 export const  delServerConfig= async (index:number) =>{
   const serverList= await getAppConfig();
-  serverList.splice(index - 1, 1);
+  serverList.splice(index, 1);
   return  await saveAppConfig(serverList);
 }
 

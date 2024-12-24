@@ -91,7 +91,6 @@ function HomePage(){
    * @param i
    */
   function  delCardHandle(i){
-    console.log(i);
     delServerConfig(i).then(()=>{
       updateServerListCard();
     });
@@ -103,8 +102,9 @@ function HomePage(){
   return (
    <>
    <View>
-     <Button onPress={updateServerListCard}>查看配置</Button>
-     <Button onPress={restSetHandle}>清空配置</Button>
+     {/*<Button onPress={updateServerListCard}>查看配置</Button>*/}
+     {/*<Button onPress={restSetHandle}>清空配置</Button>*/}
+     {/*<Button onPress={()=>{navigation.navigate('AboutPage')}}>about</Button>*/}
      {
        serverList.length>0 && serverList.map((v,i)=>(
          <Card key={i} onPress={()=>cardClickHandle(v)}>
