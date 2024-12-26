@@ -4,8 +4,7 @@ import {ServerConfig} from './appConfig';
 
 
 function getRequestBaseUrl(serverConfig: ServerConfig){
-  const pro= serverConfig.serverIsHttps ? "https": "http"
-  return  pro+"://"+serverConfig.serverAddr+":"+serverConfig.serverPort
+  return  "https://"+serverConfig.serverAddr+":"+serverConfig.serverPort
 }
 
 /**
@@ -21,3 +20,19 @@ export const getBaseInfo= async (serverConfig: ServerConfig)=>{
     }
   })
 }
+/**
+ * 获取磁盘使用情况
+ * @param serverConfig
+ */
+export const getDiskUsage= async (serverConfig: ServerConfig)=>{
+  const path="/api/diskUsage";
+  const requestUrl=getRequestBaseUrl(serverConfig)+path
+  return await axios.get(requestUrl,{
+    headers: {
+      'secret-key': serverConfig.serverSecretKey
+    }
+  })
+}
+
+
+

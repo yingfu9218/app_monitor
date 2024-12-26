@@ -2,19 +2,33 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import {Alert, Text, View} from 'react-native';
 import {VictoryChart, VictoryLine, VictoryPie, VictoryTheme} from 'victory-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {getBaseInfo} from '../util/request';
+import {getBaseInfo, getDiskUsage} from '../util/request';
 import React, {useEffect, useRef} from 'react';
-import {Button} from 'react-native-paper';
+import {Button, MD3Colors, ProgressBar} from 'react-native-paper';
 const Tab = createMaterialTopTabNavigator();
+const labTextStyle= {fontSize:25};
 
-
-function BaseInfoTab({ baseInfo }){
+function BaseInfoTab({ baseInfo,diskUsage }){
   return (
-    <View>
+    <View style={labTextStyle}>
       <Text>主机名:  {baseInfo && baseInfo.host_info.hostname}</Text>
       <Text>系统：   {baseInfo && baseInfo.host_info.os}</Text>
       <Text>平台：   {baseInfo && baseInfo.host_info.platform}</Text>
+      <Text>cpu：   {baseInfo && baseInfo.cpu_info.cores}核   {baseInfo && baseInfo.cpu_info.modelName}</Text>
       <Text>内存大小：{baseInfo && baseInfo.mem_total_str}</Text>
+      <Text style={{fontSize: 25}}>磁盘空间</Text>
+      {
+        diskUsage.length >0 && diskUsage.map((v,i)=>(
+          <View key={i}>
+            <Text>分区： {v.device}</Text>
+            <Text>挂载： {v.mountPoint}</Text>
+            {/*<Text>总大小：{v.diskTotalStr}</Text>*/}
+            {/*<Text>已使用：{v.diskUsedStr}</Text>*/}
+            {/*<Text>空闲：  {v.diskFreeStr}</Text>*/}
+            <ProgressBar progress={0.5} color={MD3Colors.error50} />
+          </View>
+
+        ))}
     </View>
   );
 }
@@ -52,6 +66,8 @@ function MemInfoTab({ baseInfo,memDetail,memPercent,menTimeData }){
   console.log(memPercent);
   console.log("MemInfoTab memDetail：");
   console.log(memDetail);
+  console.log("MemInfoTab menTimeData：");
+  console.log(menTimeData);
   return (
     <View>
       { memDetail &&  <VictoryPie
@@ -72,18 +88,56 @@ function MemInfoTab({ baseInfo,memDetail,memPercent,menTimeData }){
   );
 }
 
+function DiskDiskTab({ diskIOCounter }){
+  console.log("DiskSpeedTab diskIOCounter：");
+  console.log(diskIOCounter);
+  return (
+    <View>
+      <Text>磁盘读写情况</Text>
+      {diskIOCounter.length >0 && diskIOCounter.map((v,i)=>(
+        <View>
+          <Text>分区：{v.name}</Text>
+          <Text>读速度：{v.readSpeed}/s</Text>
+          <Text>写速度：{v.writeSpeed}/s</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function NetTab({ netSpeedList }){
+  console.log("NetTab DiskNetTab：");
+  console.log(netSpeedList);
+  return (
+    <View>
+      <Text>网络请求情况</Text>
+      {netSpeedList.length >0 && netSpeedList.map((v,i)=>(
+        <View key={i}>
+          <Text>网卡：{v.name}</Text>
+          <Text>上行：{v.uploadSpeed}/s</Text>
+          <Text>下行：{v.downloadSpeed}/s</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+
 
 function DetailPage({ route }){
   const navigation = useNavigation();
   const [baseInfo,setBaseInfo]=React.useState(null);
+  const [diskUsage,setDiskUsage]=React.useState([]);
   const [cpuTimeData,setCpuTimeData]=React.useState([]);
   const [firstLoad,setFirstLoad]=React.useState(true);
   const [cpupercent,setCpupercent]=React.useState(0.0);
   const [memDatail,setMemDatail]=React.useState(null);
   const [memPercent,setMemPercent]=React.useState(0.0);
   const [memTimeData,setMemTimeData]=React.useState([]);
+  const [diskIOCounter,setDiskIOCounter]=React.useState([]);
+  const [netSpeedList,setNetSpeedList]=React.useState([]);
   const wsRef=useRef(null);
-  const wsUrl='ws://'+route.params.serverConfig.serverAddr+':'+route.params.serverConfig.serverPort+'/ws';
+  const wsUrl='wss://'+route.params.serverConfig.serverAddr+':'+route.params.serverConfig.serverPort+'/ws?token='+route.params.serverConfig.serverSecretKey;
   if(!wsRef.current){
     wsRef.current = new WebSocket(wsUrl);
     wsRef.current.onopen = () => {
@@ -134,6 +188,18 @@ function DetailPage({ route }){
         });
 
       }
+      // 更新磁盘读写信息
+      if (mType=="disk_io_counters"){
+        setDiskIOCounter(diskIOCounter=>{
+          return  messageData.data;
+        });
+      }
+      // 更新网络请求信息
+      if (mType=="net_speed_list"){
+        setNetSpeedList(netSpeedList=>{
+          return  messageData.data;
+        });
+      }
     };
     wsRef.current.onerror = e => {
       // an error occurred
@@ -151,6 +217,11 @@ function DetailPage({ route }){
       console.log(res.data);
       setBaseInfo(res.data.data);
     });
+    getDiskUsage(route.params.serverConfig).then((res)=>{
+      console.log(res.data);
+      setDiskUsage(res.data.data);
+    });
+
     setFirstLoad(false);
   }
   useFocusEffect(
@@ -168,13 +239,19 @@ function DetailPage({ route }){
   return (
     <Tab.Navigator>
       <Tab.Screen name="概况" >
-        {(props) => <BaseInfoTab {...props} baseInfo={baseInfo} />}
+        {(props) => <BaseInfoTab {...props} baseInfo={baseInfo} diskUsage={diskUsage} />}
       </Tab.Screen>
       <Tab.Screen name="cpu"  >
         {(props) => <CpuInfoTab {...props} baseInfo={baseInfo} cpuPercent={cpupercent} cpuTimeData={cpuTimeData} />}
       </Tab.Screen>
       <Tab.Screen name="内存" >
         {(props) => <MemInfoTab {...props} baseInfo={baseInfo} memDetail={memDatail} memPercent={memPercent} menTimeData={memTimeData} />}
+      </Tab.Screen>
+      <Tab.Screen name="io" >
+        {(props) => <DiskDiskTab {...props} diskIOCounter={diskIOCounter} />}
+      </Tab.Screen>
+      <Tab.Screen name="网络" >
+        {(props) => <NetTab {...props} netSpeedList={netSpeedList} />}
       </Tab.Screen>
     </Tab.Navigator>
   );

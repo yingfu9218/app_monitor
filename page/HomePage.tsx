@@ -17,7 +17,6 @@ function HomePage(){
   const [serverName,setServerName]=React.useState('');
   const [serverAddr,setServerAddr]=React.useState('');
   const [serverPort,setServerPort]=React.useState(8080);
-  const [serverIsHttps,setserverIsHttps]=React.useState(false);
   const [serverSecretKey,setServerSecretKey]=React.useState('');
   const [serverList,setServerList]=React.useState([]);
   const [firstLoad,setFirstLoad]=React.useState(true);
@@ -49,7 +48,6 @@ function HomePage(){
     const serverConfig: ServerConfig={
       serverName: serverName,
       serverAddr: serverAddr,
-      serverIsHttps: serverIsHttps,
       serverPort: serverPort,
       serverSecretKey: serverSecretKey,
     };
@@ -157,10 +155,6 @@ function HomePage(){
            onChangeText={text => setServerSecretKey(text)}
            style={{margin: 6}}
          />
-         <View>
-           <Text>启用https</Text>
-           <Switch value={serverIsHttps} onValueChange={(val)=>setserverIsHttps(!serverIsHttps)} ></Switch>
-         </View>
 
          <Button mode={'outlined'} style={{margin: 10}} onPress={saveHandle}>
            保存
