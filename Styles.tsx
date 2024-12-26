@@ -7,6 +7,9 @@ const  Styles= StyleSheet.create({
     bottom: 0,
     right : 0,
   },
+  baseinfoText:{
+    fontSize: 20,
+  },
 });
 
 export default Styles;

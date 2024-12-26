@@ -54,14 +54,14 @@ function App(): React.JSX.Element {
             name="HomePage"
             component={HomePage}
             options={{
-              title: '首页',
+              title: '服务管理',
             }}
           />
           <Stack.Screen
             name="DetailPage"
             component={DetailPage}
             options={{
-              title: '详情',
+              title: '查看面板',
               // headerShown: true,
             }}
           />
