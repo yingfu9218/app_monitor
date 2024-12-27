@@ -8,6 +8,7 @@ export interface ServerConfig {
   serverPort: number;
   serverIsHttps: boolean;
   serverSecretKey: string;
+  serverOnline: boolean;
 }
 
 /**
@@ -64,9 +65,8 @@ export const  delServerConfig= async (index:number) =>{
  * 更新单个服务器配置
  * @param index
  */
-export function updateServerConfig(index:number,serverConfig: ServerConfig){
-  getAppConfig().then((serverList)=>{
-    serverList[index]=serverConfig;
-    saveAppConfig(serverList);
-  });
+export const updateServerConfig = async (index:number,serverConfig: ServerConfig)=>{
+  const serverList=await getAppConfig();
+  serverList[index]=serverConfig;
+  await saveAppConfig(serverList);
 }
