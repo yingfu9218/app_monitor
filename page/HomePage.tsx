@@ -169,8 +169,14 @@ function HomePage(){
     // 使用 Promise.all 来处理所有异步任务
     const newServerList = await Promise.all(
       serverListArr.map(async (v, i) => {
-        const isOnline = await checkConfig(v); // 等待异步操作完成
-        return { ...v, serverOnline: isOnline }; // 返回新的服务器对象
+        try {
+          const isOnline = await checkConfig(v); // 等待异步操作完成
+          return { ...v, serverOnline: isOnline }; // 返回新的服务器对象
+        } catch (error) {
+          console.error(`检查服务器 ${v.serverName} 时发生错误:`, error);
+          // 发生异常时，返回原始数据并标记为离线（serverOnline: false）
+          return { ...v, serverOnline: false };
+        }
       })
     );
     setServerList(newServerList);
@@ -230,9 +236,7 @@ function HomePage(){
               label="地址"
               value={serverAddr}
               mode="outlined"
-              onChangeText={text => setServerAddr(text)
-              }
-              style={{margin: 6}}
+              onChangeText={ setServerAddr}
             />
             <TextInput
               label="端口"

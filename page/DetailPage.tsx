@@ -122,6 +122,7 @@ function DiskDiskTab({ diskIOCounter }){
   );
 }
 
+
 function NetTab({ netSpeedList }){
   // console.log("NetTab DiskNetTab：");
   // console.log(netSpeedList);
@@ -148,6 +149,30 @@ function NetTab({ netSpeedList }){
 }
 
 
+function CpuTopProcessListTab({ cpuTopProcessList }){
+
+  return (
+    <ScrollView style={{ flex: 1 }}>
+      <View>
+        <Text>cpu top 20</Text>
+        {cpuTopProcessList.length >0 && cpuTopProcessList.map((v,i)=>(
+          <Card key={i} >
+            {/*<Card.Title*/}
+            {/*  title={"pid:"+v.pid}*/}
+            {/*  subtitle={"进程："+v.name+",      cpu使用："+v.cpuPercent+",       内存使用："+v.memPercent}*/}
+            {/*/>*/}
+            <Card.Content>
+              <Text>pid: {v.pid}        cpu: {Math.round(v.cpuPercent*100)/100}       内存：{Math.round(v.memPercent*100)/100} </Text>
+              <Text>{v.name}</Text>
+            </Card.Content>
+          </Card>
+        ))}
+      </View>
+    </ScrollView>
+  );
+}
+
+
 
 function DetailPage({ route }){
   const navigation = useNavigation();
@@ -161,6 +186,7 @@ function DetailPage({ route }){
   const [memTimeData,setMemTimeData]=React.useState([]);
   const [diskIOCounter,setDiskIOCounter]=React.useState([]);
   const [netSpeedList,setNetSpeedList]=React.useState([]);
+  const [cpuTopProcessList,setCpuTopProcessList]=React.useState([]);
   const heartBeatInterval = useRef(null);
   const wsRef=useRef(null);
   const wsUrl='wss://'+route.params.serverConfig.serverAddr+':'+route.params.serverConfig.serverPort+'/ws?token='+route.params.serverConfig.serverSecretKey;
@@ -169,6 +195,7 @@ function DetailPage({ route }){
    */
   const connectWebSocket = () => {
     if(!wsRef.current){
+      console.log("ws 连接")
       wsRef.current = new WebSocket(wsUrl);
       wsRef.current.onopen = () => {
         // connection opened
@@ -230,6 +257,12 @@ function DetailPage({ route }){
             return  messageData.data;
           });
         }
+        // cpu前20进程
+        if (mType=="cpu_top_processlist"){
+          setCpuTopProcessList(cpuTopProcessList=>{
+            return  messageData.data;
+          });
+        }
       };
       wsRef.current.onerror = e => {
         // an error occurred
@@ -249,7 +282,13 @@ function DetailPage({ route }){
   const startHeartBeat = () => {
     if (!heartBeatInterval.current) {
       heartBeatInterval.current = setInterval(() => {
-        if (wsRef.current && wsRef.current.readyState != WebSocket.OPEN) {
+        console.log("ws 心跳");
+        console.log(wsRef.current);
+        if(wsRef.current){
+          console.log(wsRef.current.readyState);
+        }
+        if (wsRef.current && wsRef.current.readyState != 1) {
+          wsRef.current=null;
           connectWebSocket();
         }
       }, 3000); // Send a ping every 30 seconds
@@ -290,8 +329,12 @@ function DetailPage({ route }){
         // 这里可以清理定时器或取消订阅等操作
         console.log("退出页面");
         stopHeartBeat();
-        wsRef.current.close(1000,"退出链接");
-        wsRef.current =null;
+        if (wsRef.current){
+          wsRef.current.close(1000,"退出链接");
+          wsRef.current =null;
+        }
+
+
       };
     }, [])
   );
@@ -312,6 +355,10 @@ function DetailPage({ route }){
       <Tab.Screen name="网络" >
         {(props) => <NetTab {...props} netSpeedList={netSpeedList} />}
       </Tab.Screen>
+      <Tab.Screen name="进程" >
+        {(props) => <CpuTopProcessListTab {...props} cpuTopProcessList={cpuTopProcessList} />}
+      </Tab.Screen>
+
     </Tab.Navigator>
   );
 }
