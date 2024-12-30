@@ -170,8 +170,8 @@ function CpuTopProcessListTab({ cpuTopProcessList }){
             />
             <Card.Content style={{flexDirection: "row",justifyContent: "space-between"}}>
               <Text style={{flex:1}}>pid: {v.pid}                </Text>
-              <Text style={{flex:1}}>cpu: {Math.round(v.cpuPercent*100)/100}</Text>
-              <Text style={{flex:1}}>内存：{Math.round(v.memPercent*100)/100}</Text>
+              <Text style={{flex:1}}>cpu: {Math.round(v.cpuPercent*100)/100}%</Text>
+              <Text style={{flex:1}}>内存：{Math.round(v.memPercent*100)/100}%</Text>
             </Card.Content>
           </Card>
         ))}
