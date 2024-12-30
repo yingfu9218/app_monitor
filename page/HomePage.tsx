@@ -268,6 +268,7 @@ function HomePage() {
               value={serverAddr}
               mode="outlined"
               onChangeText={setServerAddr}
+              style={{margin: 6}}
             />
             <TextInput
               label="端口"
