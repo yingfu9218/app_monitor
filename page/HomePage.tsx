@@ -1,7 +1,7 @@
 import {Alert, ScrollView, Text, View} from 'react-native';
 import {Card, Avatar, IconButton, FAB, Modal, Portal, TextInput, Button, Switch, MD3Colors} from 'react-native-paper';
 import Styles from '../Styles.tsx';
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {
   useNavigation,
 } from '@react-navigation/native';
@@ -30,7 +30,6 @@ function HomePage(){
   const [firstLoad,setFirstLoad]=React.useState(true);
   const [modalAdd,setModalAdd]=React.useState(true); //默认弹框为添加配置
   const [editIndex,setEditIndex]=React.useState(null); //编辑配置列表索引值
-  // const [cardEle,setCardEle]=React.useState(null);
   React.useEffect(()=>{
     if(firstLoad==true){
       updateServerListCard();
@@ -74,7 +73,7 @@ function HomePage(){
           saveEditConfig( serverConfig );
         }
       }else {
-        Alert.alert("无法连接服务器，请核查配置或网络环境");
+        Alert.alert("无法连接服务器，请核查配置");
         return false;
       }
     }).catch((err)=>{
@@ -173,7 +172,7 @@ function HomePage(){
           const isOnline = await checkConfig(v); // 等待异步操作完成
           return { ...v, serverOnline: isOnline }; // 返回新的服务器对象
         } catch (error) {
-          console.error(`检查服务器 ${v.serverName} 时发生错误:`, error);
+          // console.error(`检查服务器 ${v.serverName} 时发生错误:`, error);
           // 发生异常时，返回原始数据并标记为离线（serverOnline: false）
           return { ...v, serverOnline: false };
         }
@@ -203,7 +202,7 @@ function HomePage(){
           {/*<Button onPress={()=>{checkConfigAll();}}>检查状态</Button>*/}
           {
             serverList.length>0 && serverList.map((v,i)=>(
-              <Card key={i} onPress={()=>cardClickHandle(v)}>
+              <Card key={i} onPress={()=>cardClickHandle(v)} style={{marginBottom: 3}}>
                 <Card.Title
                   title={v.serverName}
                   subtitle={v.serverAddr}

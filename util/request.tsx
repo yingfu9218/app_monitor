@@ -12,7 +12,7 @@ function getRequestBaseUrl(serverConfig: ServerConfig){
  * @param serverConfig
  */
 export const CheckNenWork= async (serverConfig: ServerConfig)=>{
-  const path="/";
+  const path="/api/check";
   const requestUrl=getRequestBaseUrl(serverConfig)+path
   return await axios.get(requestUrl,{
     headers: {

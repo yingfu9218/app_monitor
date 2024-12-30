@@ -13,12 +13,14 @@ function BaseInfoTab({ baseInfo,diskUsage }){
   return (
     <ScrollView style={{ flex: 1 }}>
       <View>
-        <Text style={Styles.baseinfoText}>主机名:  {baseInfo && baseInfo.host_info.hostname}</Text>
-        <Text style={Styles.baseinfoText}>系统：   {baseInfo && baseInfo.host_info.os}</Text>
-        <Text style={Styles.baseinfoText}>平台：   {baseInfo && baseInfo.host_info.platform}</Text>
-        <Text style={Styles.baseinfoText}>cpu：   {baseInfo && baseInfo.cpu_info.cores}核   {baseInfo && baseInfo.cpu_info.modelName}</Text>
-        <Text style={Styles.baseinfoText}>内存大小：{baseInfo && baseInfo.mem_total_str}</Text>
-        <Text style={{fontSize: 28}}>磁盘空间</Text>
+        <View style={{margin: 12}} >
+          <Text style={Styles.baseinfoText}>主机名:  {baseInfo && baseInfo.host_info.hostname}</Text>
+          <Text style={Styles.baseinfoText}>系统：   {baseInfo && baseInfo.host_info.os}</Text>
+          <Text style={Styles.baseinfoText}>平台：   {baseInfo && baseInfo.host_info.platform}</Text>
+          <Text style={Styles.baseinfoText}>cpu：   {baseInfo && baseInfo.cpu_info.cores}核   {baseInfo && baseInfo.cpu_info.modelName}</Text>
+          <Text style={Styles.baseinfoText}>内存大小：{baseInfo && baseInfo.mem_total_str}</Text>
+        </View>
+        <Text style={{fontSize: 28,margin:12}}>磁盘空间</Text>
         {
           diskUsage.length >0 && diskUsage.map((v,i)=>(
             <View key={i} style={{margin: 12}}>
@@ -110,11 +112,14 @@ function DiskDiskTab({ diskIOCounter }){
           //   <Text>读速度：{v.readSpeed}/s</Text>
           //   <Text>写速度：{v.writeSpeed}/s</Text>
           // </View>
-          <Card key={i} >
+          <Card key={i} style={{backgroundColor: "rgb(234, 245, 230)",marginBottom: 12}}>
             <Card.Title
               title={"分区:"+v.name}
-              subtitle={"读速度："+v.readSpeed+"/s,                     写速度："+v.writeSpeed+"/s"}
             />
+            <Card.Content style={{flexDirection: "row",justifyContent: "space-between"}}>
+              <Text style={{flex:1}}>{"读速度："+v.readSpeed+"/s"}</Text>
+              <Text style={{flex:1}}>{"写速度："+v.writeSpeed+"/s"}</Text>
+            </Card.Content>
           </Card>
         ))}
       </View>
@@ -136,11 +141,14 @@ function NetTab({ netSpeedList }){
           //   <Text>上行：{v.uploadSpeed}/s</Text>
           //   <Text>下行：{v.downloadSpeed}/s</Text>
           // </View>
-          <Card key={i} >
+          <Card key={i}  style={{backgroundColor: "rgb(234, 245, 230)",marginBottom: 12}}>
             <Card.Title
               title={"网卡:"+v.name}
-              subtitle={"上行："+v.uploadSpeed+",                         下行："+v.downloadSpeed+""}
             />
+            <Card.Content style={{flexDirection: "row",justifyContent: "space-between"}} >
+              <Text style={{flex:1}}>{"上行："+v.uploadSpeed}</Text>
+              <Text style={{flex:1}}>{"下行："+v.downloadSpeed}</Text>
+            </Card.Content>
           </Card>
         ))}
       </View>
@@ -156,14 +164,14 @@ function CpuTopProcessListTab({ cpuTopProcessList }){
       <View>
         <Text>cpu top 20</Text>
         {cpuTopProcessList.length >0 && cpuTopProcessList.map((v,i)=>(
-          <Card key={i} >
-            {/*<Card.Title*/}
-            {/*  title={"pid:"+v.pid}*/}
-            {/*  subtitle={"进程："+v.name+",      cpu使用："+v.cpuPercent+",       内存使用："+v.memPercent}*/}
-            {/*/>*/}
-            <Card.Content>
-              <Text>pid: {v.pid}        cpu: {Math.round(v.cpuPercent*100)/100}       内存：{Math.round(v.memPercent*100)/100} </Text>
-              <Text>{v.name}</Text>
+          <Card key={i}  style={{backgroundColor: "rgb(234, 245, 230)",marginBottom: 12}}>
+            <Card.Title
+              title={v.name}
+            />
+            <Card.Content style={{flexDirection: "row",justifyContent: "space-between"}}>
+              <Text style={{flex:1}}>pid: {v.pid}                </Text>
+              <Text style={{flex:1}}>cpu: {Math.round(v.cpuPercent*100)/100}</Text>
+              <Text style={{flex:1}}>内存：{Math.round(v.memPercent*100)/100}</Text>
             </Card.Content>
           </Card>
         ))}
@@ -175,7 +183,6 @@ function CpuTopProcessListTab({ cpuTopProcessList }){
 
 
 function DetailPage({ route }){
-  const navigation = useNavigation();
   const [baseInfo,setBaseInfo]=React.useState(null);
   const [diskUsage,setDiskUsage]=React.useState([]);
   const [cpuTimeData,setCpuTimeData]=React.useState([]);
@@ -190,6 +197,8 @@ function DetailPage({ route }){
   const heartBeatInterval = useRef(null);
   const wsRef=useRef(null);
   const wsUrl='wss://'+route.params.serverConfig.serverAddr+':'+route.params.serverConfig.serverPort+'/ws?token='+route.params.serverConfig.serverSecretKey;
+  console.log("detall 传参 serverConfig");
+  console.log(route.params.serverConfig);
   /**
    * websocket连接管理
    */
