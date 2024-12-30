@@ -4,8 +4,18 @@ import {VictoryChart, VictoryLine, VictoryPie, VictoryTheme} from 'victory-nativ
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {getBaseInfo, getDiskUsage} from '../util/request';
 import React, {useEffect, useRef} from 'react';
-import {Avatar, Button, Card, IconButton, MD3Colors, ProgressBar} from 'react-native-paper';
+import {
+  ActivityIndicator,
+  Avatar,
+  Button,
+  Card,
+  IconButton,
+  MD2Colors,
+  MD3Colors,
+  ProgressBar,
+} from 'react-native-paper';
 import Styles from '../Styles.tsx';
+import {purpleA100} from 'react-native-paper/src/styles/themes/v2/colors.tsx';
 const Tab = createMaterialTopTabNavigator();
 
 
@@ -194,6 +204,7 @@ function DetailPage({ route }){
   const [diskIOCounter,setDiskIOCounter]=React.useState([]);
   const [netSpeedList,setNetSpeedList]=React.useState([]);
   const [cpuTopProcessList,setCpuTopProcessList]=React.useState([]);
+  const [isLoading,setIsloading]=React.useState(true);
   const heartBeatInterval = useRef(null);
   const wsRef=useRef(null);
   const wsUrl='wss://'+route.params.serverConfig.serverAddr+':'+route.params.serverConfig.serverPort+'/ws?token='+route.params.serverConfig.serverSecretKey;
@@ -308,6 +319,7 @@ function DetailPage({ route }){
    */
   const stopHeartBeat = () => {
     if (heartBeatInterval.current) {
+      console.log("清空定时器");
       clearInterval(heartBeatInterval.current);
       heartBeatInterval.current = null;
     }
@@ -321,6 +333,7 @@ function DetailPage({ route }){
     getBaseInfo(route.params.serverConfig).then((res)=>{
       console.log(res.data);
       setBaseInfo(res.data.data);
+      setIsloading(false);
     });
     getDiskUsage(route.params.serverConfig).then((res)=>{
       console.log(res.data);
@@ -347,29 +360,39 @@ function DetailPage({ route }){
       };
     }, [])
   );
-  return (
-    <Tab.Navigator>
-      <Tab.Screen name="概况" >
-        {(props) => <BaseInfoTab {...props} baseInfo={baseInfo} diskUsage={diskUsage} />}
-      </Tab.Screen>
-      <Tab.Screen name="cpu"  >
-        {(props) => <CpuInfoTab {...props} baseInfo={baseInfo} cpuPercent={cpupercent} cpuTimeData={cpuTimeData} />}
-      </Tab.Screen>
-      <Tab.Screen name="内存" >
-        {(props) => <MemInfoTab {...props} baseInfo={baseInfo} memDetail={memDatail} memPercent={memPercent} menTimeData={memTimeData} />}
-      </Tab.Screen>
-      <Tab.Screen name="io" >
-        {(props) => <DiskDiskTab {...props} diskIOCounter={diskIOCounter} />}
-      </Tab.Screen>
-      <Tab.Screen name="网络" >
-        {(props) => <NetTab {...props} netSpeedList={netSpeedList} />}
-      </Tab.Screen>
-      <Tab.Screen name="进程" >
-        {(props) => <CpuTopProcessListTab {...props} cpuTopProcessList={cpuTopProcessList} />}
-      </Tab.Screen>
+  // 添加加载中效果
+  if (isLoading){
+   return (
+    <View style={{flex: 1,flexDirection : "column",justifyContent: "center"}}>
+      <ActivityIndicator animating={isLoading} color={MD2Colors.purpleA100} size="large" />
+    </View>
+   );
+  }else {
+    return (
+      <Tab.Navigator>
+        <Tab.Screen name="概况" >
+          {(props) => <BaseInfoTab {...props} baseInfo={baseInfo} diskUsage={diskUsage} />}
+        </Tab.Screen>
+        <Tab.Screen name="cpu"  >
+          {(props) => <CpuInfoTab {...props} baseInfo={baseInfo} cpuPercent={cpupercent} cpuTimeData={cpuTimeData} />}
+        </Tab.Screen>
+        <Tab.Screen name="内存" >
+          {(props) => <MemInfoTab {...props} baseInfo={baseInfo} memDetail={memDatail} memPercent={memPercent} menTimeData={memTimeData} />}
+        </Tab.Screen>
+        <Tab.Screen name="io" >
+          {(props) => <DiskDiskTab {...props} diskIOCounter={diskIOCounter} />}
+        </Tab.Screen>
+        <Tab.Screen name="网络" >
+          {(props) => <NetTab {...props} netSpeedList={netSpeedList} />}
+        </Tab.Screen>
+        <Tab.Screen name="进程" >
+          {(props) => <CpuTopProcessListTab {...props} cpuTopProcessList={cpuTopProcessList} />}
+        </Tab.Screen>
 
-    </Tab.Navigator>
-  );
+      </Tab.Navigator>
+    );
+  }
+
 }
 
 export default  DetailPage;
