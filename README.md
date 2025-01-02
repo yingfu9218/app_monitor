@@ -1,5 +1,5 @@
 ### vps面板
-vps面板是一款实时监控服务器的一款app，前端采用react native 开发，目前已打包安卓安装包，ios安装方式安卓比较特殊，暂未调试，有ios需求的可以自行下载源码按照react native 打包ios方式打包。
+vps面板是一款实时监控服务器的一款app，前端采用react native 开发，目前已打包安卓安装包。ios比较特殊，无法像安卓那样使用apk包直接安装，暂未调试ios，有ios需求的可以自行下载源码按照react native 打包ios方式打包。
 
 
 
