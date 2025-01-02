@@ -7,4 +7,5 @@ vps面板是一款实习监控服务器的一款app，采用react native 开发�
 ![本地路径](https://markdown.com.cn/assets/img/philly-magic-garden.9c0b4415.jpg "相对路径演示")
 
 
-vps面板app依赖后端接口服务，需要部署后端服务monitor_server，项目地址；https://github.com/yingfu9218/monitor_server
+vps面板app依赖后端接口服务，需要部署后端服务monitor_server，安装文件下载地址：https://github.com/yingfu9218/monitor_server/releases
+monitor_server源码地址 https://github.com/yingfu9218/monitor_server
